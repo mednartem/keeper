@@ -8,6 +8,7 @@ import guru.qa.db.impl.PostgresAccountRepository;
 import guru.qa.db.impl.PostgresSpendRepository;
 import guru.qa.entity.AccountEntity;
 import guru.qa.entity.SpendEntity;
+import guru.qa.helper.Parse;
 
 import javax.swing.*;
 import java.util.Arrays;
@@ -17,31 +18,39 @@ public class SpendService {
     private final AccountRepository accountRepository = new PostgresAccountRepository();
 
     public void doSpend(AccountEntity accountEntity) {
-        if (writeSpend().equals(ModalWindowOptions.YES)) {
-            int spendValue = getSpendValue();
+        boolean spend = true;
 
-            if (isSpendAcceptedForGivenUser(accountEntity, spendValue)) {
-                Category category = spendCategory();
-                String description = JOptionPane.showInputDialog("Введите описание траты: ");
+        while (spend) {
+            ModalWindowOptions modalWindowOptions = writeSpend();
+            if (modalWindowOptions.equals(ModalWindowOptions.YES)) {
+                int spendValue = getSpendValue();
 
-                SpendEntity spendEntity = new SpendEntity()
-                        .setSpend(spendValue)
-                        .setSpendCategory(category)
-                        .setDescription(description)
-                        .setAccountId(accountEntity.getId());
+                if (isSpendAcceptedForGivenUser(accountEntity, spendValue)) {
+                    Category category = spendCategory();
+                    String description = JOptionPane.showInputDialog("Введите описание траты: ");
 
-                spendRepository.addSpend(spendEntity);
-                accountEntity.setBalance(accountEntity.getBalance() - spendValue);
-                accountRepository.updateAccount(accountEntity);
-            } else {
-                JOptionPane.showMessageDialog(
-                        null,
-                        "Невозможно совершить списание",
-                        "Ошибка",
-                        JOptionPane.ERROR_MESSAGE
-                );
+                    SpendEntity spendEntity = new SpendEntity()
+                            .setSpend(spendValue)
+                            .setSpendCategory(category)
+                            .setDescription(description)
+                            .setAccountId(accountEntity.getId());
+
+                    spendRepository.addSpend(spendEntity);
+                    accountEntity.setBalance(accountEntity.getBalance() - spendValue);
+                    accountRepository.updateAccount(accountEntity);
+                } else {
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Невозможно совершить списание",
+                            "Ошибка",
+                            JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            } else if (modalWindowOptions.equals(ModalWindowOptions.NO)) {
+                spend = false;
             }
         }
+
     }
 
     public void showAllSpends(AccountEntity account) {
@@ -91,16 +100,6 @@ public class SpendService {
     }
 
     private int getSpendValue() {
-        int spend;
-
-        try {
-            spend = Integer.parseInt(
-                    JOptionPane.showInputDialog("Введите размер траты: ")
-            );
-        } catch (NumberFormatException e) {
-            spend = 0;
-        }
-
-        return spend;
+        return Parse.parseString("Введите размер траты: ");
     }
 }

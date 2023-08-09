@@ -3,6 +3,7 @@ package guru.qa.service;
 import guru.qa.db.AccountRepository;
 import guru.qa.db.impl.PostgresAccountRepository;
 import guru.qa.entity.AccountEntity;
+import guru.qa.helper.Parse;
 
 import javax.swing.*;
 
@@ -14,11 +15,9 @@ public class AccountService {
         AccountEntity workAccount = accountRepository.getByName(accountName);
 
         if (workAccount == null) {
-            int balance = Integer.parseInt(JOptionPane.showInputDialog("Введите баланс: "));
-
             AccountEntity account = new AccountEntity()
                     .setName(accountName)
-                    .setBalance(balance);
+                    .setBalance(getBalanceForNewCustomer());
 
             accountRepository.addAccount(account);
 
@@ -35,5 +34,9 @@ public class AccountService {
                 "Баланс",
                 JOptionPane.INFORMATION_MESSAGE
         );
+    }
+
+    private int getBalanceForNewCustomer() {
+        return Parse.parseString("Введите баланс: ");
     }
 }

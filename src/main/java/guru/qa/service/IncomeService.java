@@ -7,6 +7,7 @@ import guru.qa.db.impl.PostgresAccountRepository;
 import guru.qa.db.impl.PostgresIncomeRepository;
 import guru.qa.entity.AccountEntity;
 import guru.qa.entity.IncomeEntity;
+import guru.qa.helper.Parse;
 
 import javax.swing.*;
 import java.util.Arrays;
@@ -64,16 +65,6 @@ public class IncomeService {
     }
 
     private int getIncomeValue() {
-        int income;
-
-        try {
-            income = Integer.parseInt(
-                    JOptionPane.showInputDialog("Введите сумму пополнения")
-            );
-        } catch (NumberFormatException e) {
-            income = 0;
-        }
-
-        return income;
+        return Parse.parseString("Введите сумму пополнения");
     }
 }
